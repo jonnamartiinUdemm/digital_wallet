@@ -1,0 +1,12 @@
+# Ignorar el entorno virtual (es basura generada)
+venv/
+
+# Ignorar base de datos local (es privada)
+*.db
+
+# Ignorar archivos compilados de Python
+__pycache__/
+*.pyc
+
+# Ignorar archivos de sistema de Mac
+.DS_Store
