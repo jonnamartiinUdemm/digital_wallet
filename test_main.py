@@ -20,3 +20,13 @@ def test_read_saldo():
     assert "saldo_actual" in data
     assert "moneda" in data
     assert data["moneda"] == "ARS"
+# TEST 3: Verificar creación de un movimiento con monto excesivo
+def test_crear_movimiento_monto_excesivo():
+    movimiento_data = {
+        "monto": 600000,  # Monto excesivo
+        "tipo": "egreso",
+        "concepto": "Prueba monto alto"
+    }
+    response = client.post("/movimientos/", json=movimiento_data)
+    assert response.status_code == 400  # Esperamos un error 400
+    assert response.json() == {"detail": "Monto excede el límite de seguridad."}
