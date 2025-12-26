@@ -3,6 +3,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import SQLModel, select, Session  # <--- Importa Session aquí también
 from database import engine, get_session  # <--- Traemos get_session
 from models import Movimiento
+from settings import settings
 
 app = FastAPI()
 
@@ -24,7 +25,7 @@ def home():
 
 @app.post("/movimientos/")
 def crear_movimiento(movimiento: Movimiento, session: Session = Depends(get_session)):
-    if movimiento.monto > 500000:
+    if movimiento.monto > settings.limite_transferencia:
         raise HTTPException(status_code=400, detail="Monto excede el límite de seguridad.")
     session.add(movimiento)
     session.commit()
