@@ -1,11 +1,10 @@
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException
-from sqlmodel import SQLModel, select, Session  # <--- Importa Session aquí también
-from database import engine, get_session  # <--- Traemos get_session
-from models import Movimiento
+from sqlmodel import select, Session
+from database import engine, get_session
+from models import Movimiento          
+from schemas import MovimientoCreate, MovimientoResponse 
 from settings import settings
-
-app = FastAPI()
+from contextlib import asynccontextmanager
 
 
 # --- EVENTOS ---
@@ -16,6 +15,7 @@ async def lifespan(app: FastAPI):
     print("✅ Tablas creadas (Modo Lifespan)")
     yield
 
+app = FastAPI(lifespan=lifespan)
 
 # --- RUTAS ---
 @app.get("/")
@@ -24,16 +24,19 @@ def home():
 
 
 @app.post("/movimientos/")
-def crear_movimiento(movimiento: Movimiento, session: Session = Depends(get_session)):
-    if movimiento.monto > settings.limite_transferencia:
+def crear_movimiento(movimiento_data: MovimientoCreate, session: Session = Depends(get_session)):
+    if movimiento_data.monto > settings.limite_transferencia:
         raise HTTPException(status_code=400, detail="Monto excede el límite de seguridad.")
+    nuevo_movimiento = Movimiento(**movimiento_data.model_dump())
+
     session.add(movimiento)
     session.commit()
     session.refresh(movimiento)
-    return movimiento
+
+    return nuevo_movimiento
 
 
-@app.get("/movimientos/")
+@app.get("/movimientos/", response_model=list[MovimientoResponse])
 def leer_movimientos(session: Session = Depends(get_session)):
     consulta = select(Movimiento)
     return session.exec(consulta).all()
