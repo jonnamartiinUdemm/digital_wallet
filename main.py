@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import select, Session
 from database import engine, get_session
-from models import Movimiento          
-from schemas import MovimientoCreate, MovimientoResponse 
+from models import Movimiento
+from schemas import MovimientoCreate, MovimientoResponse
 from settings import settings
 from contextlib import asynccontextmanager
 
@@ -14,8 +14,11 @@ async def lifespan(app: FastAPI):
     SQLModel.metadata.create_all(engine)
     print("✅ Tablas creadas (Modo Lifespan)")
     yield
+    print("Hasta la proxima")
+
 
 app = FastAPI(lifespan=lifespan)
+
 
 # --- RUTAS ---
 @app.get("/")
@@ -24,14 +27,18 @@ def home():
 
 
 @app.post("/movimientos/")
-def crear_movimiento(movimiento_data: MovimientoCreate, session: Session = Depends(get_session)):
+def crear_movimiento(
+    movimiento_data: MovimientoCreate, session: Session = Depends(get_session)
+):
     if movimiento_data.monto > settings.limite_transferencia:
-        raise HTTPException(status_code=400, detail="Monto excede el límite de seguridad.")
+        raise HTTPException(
+            status_code=400, detail="Monto excede el límite de seguridad."
+        )
     nuevo_movimiento = Movimiento(**movimiento_data.model_dump())
 
-    session.add(movimiento)
+    session.add(nuevo_movimiento)
     session.commit()
-    session.refresh(movimiento)
+    session.refresh(nuevo_movimiento)
 
     return nuevo_movimiento
 
@@ -54,3 +61,39 @@ def ver_saldo(session: Session = Depends(get_session)):
             saldo -= mov.monto
 
     return {"saldo_actual": saldo, "moneda": "ARS"}
+
+
+@app.delete("/movimientos/{movimiento_id}")
+def eliminar_movimiento(movimiento_id: int, session: Session = Depends(get_session)):
+    movimiento = session.get(Movimiento, movimiento_id)
+    if not movimiento:
+        raise HTTPException(status_code=404, detail="Movimiento no encontrado.")
+
+    session.delete(movimiento)
+    session.commit()
+    return {"detail": "Movimiento eliminado exitosamente."}
+
+
+@app.put("/movimientos/{movimiento_id}")
+def actualizar_movimiento(
+    movimiento_id: int,
+    movimiento_data: MovimientoCreate,
+    session: Session = Depends(get_session),
+):
+    movimiento = session.get(Movimiento, movimiento_id)
+    if not movimiento:
+        raise HTTPException(status_code=404, detail="Movimiento no encontrado.")
+
+    if movimiento_data.monto > settings.limite_transferencia:
+        raise HTTPException(
+            status_code=400, detail="Monto excede el límite de seguridad."
+        )
+
+    movimiento_dict = movimiento_data.model_dump()
+    for key, value in movimiento_dict.items():
+        setattr(movimiento, key, value)
+
+    session.add(movimiento)
+    session.commit()
+    session.refresh(movimiento)
+    return movimiento
