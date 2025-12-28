@@ -1,6 +1,6 @@
 # Personal Finance API 💰
 
-A robust, high-performance **RESTful API** built with **Python** and **FastAPI** to manage personal finances. This project demonstrates backend engineering best practices, including **Data Validation**, **Relational Database Design**, **Dependency Injection**, and **Automated Integration Testing**.
+A RESTful API built with **Python** and **FastAPI** to manage personal finances. This project demonstrates backend engineering practices including **Data Validation**, **Relational Database Design**, **Dependency Injection**, and **Automated Integration Testing**.
 
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=for-the-badge&logo=fastapi&logoColor=white)
@@ -9,43 +9,44 @@ A robust, high-performance **RESTful API** built with **Python** and **FastAPI**
 
 ## 📖 Project Overview
 
-This backend application solves the problem of tracking financial movements (incomes/expenses) with temporal context and categorization. It provides endpoints for creating, reading, updating, and deleting (CRUD) transactions, with advanced capabilities for **filtering**, **sorting**, and **relationship management**.
+This backend application solves the problem of tracking financial movements (incomes/expenses) with temporal context and categorization. It provides endpoints for creating, reading, updating, and deleting (CRUD) transactions, with capabilities for **filtering** and **sorting**.
 
 The core philosophy of this project is **Reliability** and **Maintainability**, achieved through strict type checking, separation of concerns, and a comprehensive test suite.
 
-## 🏗️ Technical Architecture & Design Patterns
+## 🏗️ Technical Architecture
 
-The project follows a **Layered Architecture** to ensure separation of concerns (SoC), adhering to **SOLID principles**:
+The project follows a **Layered Architecture** to ensure separation of concerns (SoC):
 
-* **Models Layer (`models.py`):** Defines the database schema using **SQLModel (SQLAlchemy)**. Handles persistence and table relationships (One-to-Many between Categories and Movements).
-* **Schemas Layer (`schemas.py`):** Handles Data Transfer Objects (DTOs) using **Pydantic V2**. This layer acts as a "security guard," validating input data and serializing output data (excluding sensitive internal fields).
+* **Models Layer (`models.py`):** Defines the database schema using **SQLModel (SQLAlchemy)**. Handles persistence and table relationships.
+* **Schemas Layer (`schemas.py`):** Handles Data Transfer Objects (DTOs) using **Pydantic V2**. This layer acts as a validation step for input data and output serialization.
 * **Controller Layer (`main.py`):** Manages HTTP requests and business logic. It utilizes **Dependency Injection** to manage database sessions securely.
-* **Configuration (`settings.py`):** Decouples configuration from code using environment variables (12-Factor App methodology).
+* **Configuration (`settings.py`):** Decouples configuration from code using environment variables.
 
 ### Key Features
 * **✅ Full CRUD Operations:** Create, Read, Update, and Delete for Movements and Categories.
 * **🔌 Relational Integrity:** Enforces Foreign Keys to ensure data consistency between Transactions and Categories.
-* **🔍 Advanced Filtering & Sorting:** * Dynamic query parameters to filter by date range (`fecha_desde`, `fecha_hasta`), category, or type.
-    * Safe dynamic sorting via `order_by` (protected against injection).
-* **🛡️ Robust Error Handling:** Custom HTTP exceptions for business rules (e.g., transaction limits, non-existent foreign keys).
-* **♻️ Data Seeding:** Automated script (`seed.py`) to populate the database with realistic mock data for development and staging.
+* **🔍 Filtering & Sorting:**
+    * Dynamic query parameters to filter by date range (`fecha_desde`, `fecha_hasta`), category, or type.
+    * Safe dynamic sorting via `order_by` parameter.
+* **🛡️ Error Handling:** Custom HTTP exceptions for business rules (e.g., transaction limits).
+* **♻️ Data Seeding:** Automated script (`seed.py`) to populate the database with mock data for development.
 
 ## 🛠️ Tech Stack
 
 * **Language:** Python 3.11+
-* **Framework:** FastAPI (High performance, async support)
+* **Framework:** FastAPI
 * **ORM:** SQLModel (Combines SQLAlchemy and Pydantic)
 * **Validation:** Pydantic V2
-* **Database:** SQLite (Easily scalable to PostgreSQL)
+* **Database:** SQLite (Can be converted to other SQL databases like PostgreSQL)
 * **Testing:** Pytest & HTTPX
 
 ## 🧪 Testing Strategy
 
-Quality assurance is a priority. The project includes a suite of **Integration Tests** that cover happy paths and edge cases.
+The project includes a suite of **Integration Tests** that cover happy paths and edge cases.
 
-* **Isolation:** Tests run on an **in-memory SQLite database** using `StaticPool`. This ensures that tests never corrupt the production/development database and are concurrency-safe.
-* **Fixtures:** Utilizes `pytest` fixtures in `conftest.py` for setup/teardown automation and dependency overrides.
-* **Coverage:** Validates HTTP status codes, JSON response structures, database integrity, and complex scenarios like "Update with Partial Data".
+* **Isolation:** Tests run on an **in-memory SQLite database** using `StaticPool`. This ensures that tests never corrupt the development database.
+* **Fixtures:** Utilizes `pytest` fixtures in `conftest.py` for setup/teardown automation.
+* **Coverage:** Validates HTTP status codes, JSON response structures, database integrity, and scenarios like partial updates.
 
 ## 🚀 Getting Started
 
@@ -85,6 +86,6 @@ Quality assurance is a priority. The project includes a suite of **Integration T
     * ReDoc: `http://127.0.0.1:8000/redoc`
 
 ### Data Seeding (Optional)
-Populate the database with dummy data (Categories and Movements) for testing purposes:
+Populate the database with dummy data for testing purposes:
 ```bash
 python seed.py
