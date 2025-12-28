@@ -7,6 +7,8 @@ sqlite_url = f"sqlite:///{sqlite_file_name}"
 # 2. El Motor (Engine)
 engine = create_engine(sqlite_url)
 
+create_all_tables = SQLModel.metadata.create_all(engine)
+
 
 def get_session():
     with Session(engine) as session:
