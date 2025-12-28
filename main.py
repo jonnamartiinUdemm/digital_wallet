@@ -72,7 +72,10 @@ def crear_movimiento(
 @app.get("/movimientos/", response_model=list[MovimientoResponse])
 def leer_movimientos(
     session: Session = Depends(get_session), tipo: Optional[str] = None,
-    categoria_id: Optional[int] = None
+    categoria_id: Optional[int] = None,
+    fecha_desde: Optional[datetime] = None,
+    fecha_hasta: Optional[datetime] = None,
+    order_by: Optional[str] = "date",
     ):
 
     consulta = select(Movimiento)
@@ -80,8 +83,15 @@ def leer_movimientos(
         consulta = consulta.where(Movimiento.tipo == tipo)
     if categoria_id:
         consulta = consulta.where(Movimiento.categoria_id == categoria_id)
-    
-    consulta = consulta.order_by(Movimiento.date.desc())
+    if fecha_desde:
+        consulta = consulta.where(Movimiento.date >= fecha_desde)
+    if fecha_hasta:
+        consulta = consulta.where(Movimiento.date <= fecha_hasta)
+    campos_permitidos = ["monto", "date", "concepto", "tipo"]
+    if order_by not in campos_permitidos:
+        order_by = 'date'
+    ordenamiento = getattr(Movimiento, order_by)
+    consulta = consulta.order_by(ordenamiento.desc())
     return session.exec(consulta).all()
 
 
