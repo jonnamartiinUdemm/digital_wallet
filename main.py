@@ -9,6 +9,7 @@ from schemas import (
 from settings import settings
 from contextlib import asynccontextmanager
 from typing import Optional
+from datetime import datetime
 
 
 # --- EVENTOS ---
@@ -58,7 +59,8 @@ def crear_movimiento(
     if not categoria:
         raise HTTPException(status_code=404, detail="Categoría no encontrada.")
 
-    nuevo_movimiento = Movimiento.model_validate(movimiento_data)
+    movimiento_dict = movimiento_data.model_dump(exclude_none=True)
+    nuevo_movimiento = Movimiento(**movimiento_dict)
 
     session.add(nuevo_movimiento)
     session.commit()
@@ -79,6 +81,7 @@ def leer_movimientos(
     if categoria_id:
         consulta = consulta.where(Movimiento.categoria_id == categoria_id)
     
+    consulta = consulta.order_by(Movimiento.date.desc())
     return session.exec(consulta).all()
 
 
@@ -122,7 +125,7 @@ def actualizar_movimiento(
             status_code=400, detail="Monto excede el límite de seguridad."
         )
 
-    movimiento_dict = movimiento_data.model_dump()
+    movimiento_dict = movimiento_data.model_dump(exclude_none=True)
     for key, value in movimiento_dict.items():
         setattr(movimiento, key, value)
 

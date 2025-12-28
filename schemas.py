@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+from datetime import datetime
 
 #Categorias
 class CategoriaBase(BaseModel):
@@ -14,6 +15,7 @@ class MovimientoBase(BaseModel):
     monto: float
     tipo: str
     concepto: str
+    date: datetime | None = None
 
 # 2. ESQUEMA DE CREACIÓN (Lo que pedimos al usuario)
 class MovimientoCreate(MovimientoBase):
@@ -26,3 +28,4 @@ class MovimientoResponse(MovimientoBase):
     categoria: CategoriaResponse | None = None
     # Esta configuración le permite a Pydantic leer datos desde una clase SQLModel (Diferencia entre diccionario y objeto)
     model_config = ConfigDict(from_attributes=True)
+    date: datetime
