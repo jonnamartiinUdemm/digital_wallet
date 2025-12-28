@@ -8,6 +8,7 @@ from schemas import (
     )
 from settings import settings
 from contextlib import asynccontextmanager
+from typing import Optional
 
 
 # --- EVENTOS ---
@@ -67,8 +68,17 @@ def crear_movimiento(
 
 
 @app.get("/movimientos/", response_model=list[MovimientoResponse])
-def leer_movimientos(session: Session = Depends(get_session)):
+def leer_movimientos(
+    session: Session = Depends(get_session), tipo: Optional[str] = None,
+    categoria_id: Optional[int] = None
+    ):
+
     consulta = select(Movimiento)
+    if tipo:
+        consulta = consulta.where(Movimiento.tipo == tipo)
+    if categoria_id:
+        consulta = consulta.where(Movimiento.categoria_id == categoria_id)
+    
     return session.exec(consulta).all()
 
 
