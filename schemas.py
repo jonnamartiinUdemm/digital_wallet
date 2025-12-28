@@ -1,24 +1,28 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
+#Categorias
+class CategoriaBase(BaseModel):
+    nombre: str
 
-# 1. ESQUEMA BASE (Lo que tienen en común)
+class CategoriaCreate(CategoriaBase):
+    pass
+class CategoriaResponse(CategoriaBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+# Movimientos
 class MovimientoBase(BaseModel):
     monto: float
     tipo: str
     concepto: str
 
-
 # 2. ESQUEMA DE CREACIÓN (Lo que pedimos al usuario)
-# Hereda de Base. Aquí podrías poner validaciones extra si quisieras.
 class MovimientoCreate(MovimientoBase):
-    pass
+    categoria_id: int
 
 
 # 3. ESQUEMA DE LECTURA (Lo que mostramos al usuario)
-# Hereda de Base y AGREGA el ID (que el usuario no envía, pero nosotros sí mostramos)
 class MovimientoResponse(MovimientoBase):
     id: int
-
+    categoria: CategoriaResponse | None = None
     # Esta configuración le permite a Pydantic leer datos desde una clase SQLModel (Diferencia entre diccionario y objeto)
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

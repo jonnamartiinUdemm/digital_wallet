@@ -1,8 +1,11 @@
 from fastapi import FastAPI, Depends, HTTPException
-from sqlmodel import select, Session
+from sqlmodel import select, Session, SQLModel
 from database import engine, get_session
-from models import Movimiento
-from schemas import MovimientoCreate, MovimientoResponse
+from models import Movimiento, Categoria
+from schemas import (
+    MovimientoCreate, MovimientoResponse, 
+    CategoriaCreate, CategoriaResponse
+    )
 from settings import settings
 from contextlib import asynccontextmanager
 
@@ -25,7 +28,23 @@ app = FastAPI(lifespan=lifespan)
 def home():
     return {"status": "Online", "version": "Billetera Local 1.0"}
 
+#-- RUTAS CATEGORIAS ---
+@app.post("/categorias/", response_model=CategoriaResponse)
+def crear_categoria(
+    categoria_data: CategoriaCreate, session: Session = Depends(get_session)
+):
+    nueva_categoria = Categoria.model_validate(categoria_data)
 
+    session.add(nueva_categoria)
+    session.commit()
+    session.refresh(nueva_categoria)
+
+    return nueva_categoria
+@app.get("/categorias/", response_model=list[CategoriaResponse])
+def leer_categorias(session: Session = Depends(get_session)):
+    consulta = select(Categoria)
+    return session.exec(consulta).all()
+#-- RUTAS MOVIMIENTOS ---
 @app.post("/movimientos/")
 def crear_movimiento(
     movimiento_data: MovimientoCreate, session: Session = Depends(get_session)
@@ -34,7 +53,11 @@ def crear_movimiento(
         raise HTTPException(
             status_code=400, detail="Monto excede el límite de seguridad."
         )
-    nuevo_movimiento = Movimiento(**movimiento_data.model_dump())
+    categoria = session.get(Categoria, movimiento_data.categoria_id)
+    if not categoria:
+        raise HTTPException(status_code=404, detail="Categoría no encontrada.")
+
+    nuevo_movimiento = Movimiento.model_validate(movimiento_data)
 
     session.add(nuevo_movimiento)
     session.commit()
