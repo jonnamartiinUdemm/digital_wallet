@@ -6,8 +6,12 @@ class Settings(BaseSettings):
     limite_transferencia: int
     nombre_app: str = "Billetera Local"  # Valor por defecto si no está en el .env
 
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+
     # Configuración para que lea el archivo .env automáticamente
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
 # Instanciamos la clase una sola vez para importarla desde otros lados

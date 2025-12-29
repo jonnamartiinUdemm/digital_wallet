@@ -30,3 +30,20 @@ class MovimientoResponse(MovimientoBase):
     model_config = ConfigDict(from_attributes=True)
     date: datetime
     categoria_id: int
+
+#Usuarios
+
+class UserBase(BaseModel):
+    username: str
+    email: str
+
+class UserCreate(UserBase):
+    password: str
+
+class UserResponse(UserBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+    
+class Token(BaseModel):
+    access_token: str
+    token_type: str

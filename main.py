@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from database import create_all_tables
-from routers import movimientos, categorias # Importamos los nuevos archivos
+from routers import movimientos, categorias, auth # Importamos los nuevos archivos
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -13,6 +13,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan, title="Billetera Local", version="2.0")
 
 # --- CONECTAMOS LOS ROUTERS ---
+app.include_router(auth.router)
 app.include_router(movimientos.router)
 app.include_router(categorias.router)
 
