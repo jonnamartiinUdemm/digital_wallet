@@ -29,3 +29,4 @@ class MovimientoResponse(MovimientoBase):
     # Esta configuración le permite a Pydantic leer datos desde una clase SQLModel (Diferencia entre diccionario y objeto)
     model_config = ConfigDict(from_attributes=True)
     date: datetime
+    categoria_id: int
