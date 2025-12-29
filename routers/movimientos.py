@@ -3,9 +3,10 @@ from sqlmodel import Session, select, func
 from typing import Optional
 from datetime import datetime
 from database import get_session
-from models import Movimiento, Categoria
+from models import Movimiento, Categoria, User
 from schemas import MovimientoCreate, MovimientoResponse, MovimientoBase
 from settings import settings
+from routers.auth import get_current_user
 
 router = APIRouter(
     prefix="/movimientos",  # Todas las rutas empezarán con /movimientos
@@ -13,7 +14,7 @@ router = APIRouter(
 )
 
 @router.get("/saldo")
-def obtener_saldo(session: Session = Depends(get_session)):
+def obtener_saldo(session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     # Sumar ingresos
     ingresos = session.exec(
         select(func.sum(Movimiento.monto)).where(Movimiento.tipo == "ingreso")
@@ -32,7 +33,7 @@ def obtener_saldo(session: Session = Depends(get_session)):
     }
 
 @router.post("/", response_model=MovimientoResponse)
-def crear_movimiento(movimiento_data: MovimientoCreate, session: Session = Depends(get_session)):
+def crear_movimiento(movimiento_data: MovimientoCreate, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     if movimiento_data.monto > settings.limite_transferencia:
         raise HTTPException(status_code=400, detail="Monto excede el límite de seguridad.")
     
@@ -51,7 +52,8 @@ def crear_movimiento(movimiento_data: MovimientoCreate, session: Session = Depen
 
 @router.get("/", response_model=list[MovimientoResponse])
 def leer_movimientos(
-    session: Session = Depends(get_session), 
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user), 
     tipo: Optional[str] = None,
     categoria_id: Optional[int] = None,
     fecha_desde: Optional[datetime] = None,
@@ -83,7 +85,7 @@ def leer_movimientos(
     return session.exec(consulta).all()
 
 @router.put("/{id}", response_model=MovimientoResponse)
-def actualizar_movimiento(id: int, movimiento_data: MovimientoCreate, session: Session = Depends(get_session)):
+def actualizar_movimiento(id: int, movimiento_data: MovimientoCreate, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     movimiento_db = session.get(Movimiento, id)
     if movimiento_data.monto > settings.limite_transferencia:
         raise HTTPException(status_code=400, detail="Monto excede el límite de seguridad.")
@@ -100,7 +102,7 @@ def actualizar_movimiento(id: int, movimiento_data: MovimientoCreate, session: S
     return movimiento_db
 
 @router.delete("/{id}")
-def eliminar_movimiento(id: int, session: Session = Depends(get_session)):
+def eliminar_movimiento(id: int, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     movimiento = session.get(Movimiento, id)
     if not movimiento:
         raise HTTPException(status_code=404, detail="Movimiento no encontrado.")

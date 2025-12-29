@@ -22,7 +22,7 @@ def test_read_saldo(client):
 
 # TEST 3: Verificar creación de un movimiento con monto excesivo
 def test_crear_movimiento_monto_excesivo(client, categoria_test):
-    categoria_id = categoria_test["id"]
+    categoria_id = categoria_test.id
     movimiento_data = {
         "monto": 600000,  # Monto excesivo
         "tipo": "egreso",
@@ -43,7 +43,7 @@ def test_eliminar_movimiento_inexistente(client):
 
 # TEST 5: Verificar creación y eliminación de un movimiento
 def test_crear_y_eliminar_movimiento(client, categoria_test):
-    categoria_id = categoria_test["id"]
+    categoria_id = categoria_test.id
     movimiento_data = {
         "monto": 1000,
         "tipo": "ingreso",
@@ -64,7 +64,7 @@ def test_crear_y_eliminar_movimiento(client, categoria_test):
 
 # TEST 6: Verificar actualización de un movimiento inexistente
 def test_actualizar_movimiento_inexistente(client, categoria_test):
-    categoria_id = categoria_test["id"]
+    categoria_id = categoria_test.id
     movimiento_data = {
         "monto": 2000,
         "tipo": "egreso",
@@ -78,7 +78,7 @@ def test_actualizar_movimiento_inexistente(client, categoria_test):
 
 # TEST 7: Verificar actualización de un movimiento con monto excesivo
 def test_actualizar_movimiento_monto_excesivo(client, categoria_test):
-    categoria_id = categoria_test["id"]
+    categoria_id = categoria_test.id
     # Primero, creamos un movimiento válido
     movimiento_data = {
         "monto": 1000,
@@ -109,7 +109,7 @@ def test_actualizar_movimiento_monto_excesivo(client, categoria_test):
 
 # Test 8: Verificar creación y actualización de un movimiento
 def test_crear_y_actualizar_movimiento(client, categoria_test):
-    categoria_id = categoria_test["id"]
+    categoria_id = categoria_test.id
     movimiento_data = {
         "monto": 1500,
         "tipo": "ingreso",
@@ -190,13 +190,13 @@ def test_crear_movimiento_categoria_existente(client):
 #Test 12: Crear usuario y verificar hash de contraseña
 def test_crear_usuario_y_verificar_hash(client):
     usuario_data = {
-        "username": "testuser",
-        "email": "testuser@example.com",
+        "username": "usuario_nuevo", 
+        "email": "test2@test.com",
         "password": "securepassword123"
     }
     response = client.post("/auth/register", json=usuario_data)
     assert response.status_code == 200
     usuario_creado = response.json()
-    assert usuario_creado["username"] == "testuser"
-    assert usuario_creado["email"] == "testuser@example.com"
+    assert usuario_creado["username"] == "usuario_nuevo"
+    assert usuario_creado["email"] == "test2@test.com"
     assert "hashed_password" not in usuario_creado  # No debe devolver la contraseña hasheada
