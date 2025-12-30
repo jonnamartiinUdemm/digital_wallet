@@ -1,0 +1,46 @@
+name: CI Billetera
+
+# Cada vez que hacemos push a la rama 'main'
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+
+jobs:
+  test-app:
+    # Usamos una máquina virtual de Linux (Ubuntu)
+    runs-on: ubuntu-latest
+
+    steps:
+    # A. Descargar tu código del repo
+    - name: Checkout código
+      uses: actions/checkout@v4
+
+    # B. Instalar Python 3.11
+    - name: Configurar Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    # C. Instalar dependencias
+    - name: Instalar dependencias
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        # Instalamos httpx si no está (necesario para TestClient)
+        pip install httpx pytest
+
+    # D. Correr los Tests
+    - name: Correr Pruebas con Pytest
+      # Definimos variables de entorno "dummy" para que Pydantic no se queje.
+      # No usamos la DB real de Azure, usamos SQLite en memoria para testear rápido.
+      env:
+        SECRET_KEY: "super_secret_test_key"
+        ALGORITHM: "HS256"
+        ACCESS_TOKEN_EXPIRE_MINUTES: 30
+        LIMITE_TRANSFERENCIA: 500000
+        DATABASE_URL: "sqlite:///./test_db.sqlite" 
+      run: |
+        pytest -v
