@@ -12,7 +12,7 @@ Backend robusto para gestión financiera personal, diseñado con una arquitectur
 ## 🚀 Demo en Vivo
 
 * **API Documentation (Swagger):** [https://jnnmnn-billetera-api.onrender.com/docs](https://jnnmnn-billetera-api.onrender.com/docs)
-* **Estado del Deploy:** ![CI/CD Billetera](https://github.com/jonnamartiinUdemm/billetera-backend/actions/workflows/ci.yml/badge.svg)
+* **Estado del Deploy:** ![CI/CD Billetera](https://github.com/TU_USUARIO/billetera-backend/actions/workflows/ci.yml/badge.svg)
 
 *(Nota: El servidor está alojado en Render (Free Tier) y la Base de Datos en Azure (Brasil). Puede tardar unos segundos en "despertar" la primera vez).*
 
@@ -23,17 +23,6 @@ El proyecto sigue una arquitectura distribuida híbrida:
 1.  **API (Compute):** Contenedor Docker alojado en **Render**.
 2.  **Base de Datos (Storage):** PostgreSQL gestionado en **Azure Database (Flexible Server)**.
 3.  **CI/CD Pipeline:** Automatización completa con **GitHub Actions**.
-
-```mermaid
-graph LR
-    User((👤 Usuario)) --> |HTTPS| Render[☁️ Render (FastAPI Container)]
-    Render --> |Secure Connection| Azure[🗄️ Azure PostgreSQL]
-    
-    subgraph GitHub_Actions [🤖 CI/CD Pipeline]
-        Code[📝 Push Code] --> Test[🧪 Pytest]
-        Test --> |Success| Deploy[🚀 Auto-Deploy to Render]
-    end
-```
 
 ## ✨ Características Técnicas
 
@@ -71,7 +60,6 @@ La forma más profesional de correr el proyecto es usando Docker Compose, que le
     ACCESS_TOKEN_EXPIRE_MINUTES=30
     LIMITE_TRANSFERENCIA=500000
     NOMBRE_APP="Billetera Docker"
-    # No es necesario definir DATABASE_URL aquí, docker-compose la inyecta sola.
     ```
 
 3.  **Levantar el entorno:**
@@ -92,11 +80,6 @@ Para correr los tests manualmente (usando una DB temporal en memoria):
 ```bash
 # Si usas entorno virtual de Python
 pytest -v
-```
-
-## 📂 Estructura del Proyecto
-
-```text
 ├── .github/workflows # Pipelines de CI/CD
 ├── routers/          # Endpoints modulares
 ├── tests/            # Tests unitarios y de integración
@@ -108,6 +91,5 @@ pytest -v
 └── settings.py       # Gestión de configuración
 ```
 
-## ✒️ Autor
-
-**Jonathan Martin** - *Software Engineer Student*
+✒️ Autor
+Jonathan Martin - Software Engineer Student
