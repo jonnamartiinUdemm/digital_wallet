@@ -44,3 +44,12 @@ jobs:
         DATABASE_URL: "sqlite:///./test_db.sqlite" 
       run: |
         pytest -v
+    #E. Desplegar a Render (solo si los tests pasaron)
+    deploy-render:
+    needs: test-app
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Solo desplegar si el push es a la rama principal
+    
+    steps:
+      - name: Disparar Deploy en Render
+        run: curl "${{ secrets.RENDER_DEPLOY_HOOK }}"
