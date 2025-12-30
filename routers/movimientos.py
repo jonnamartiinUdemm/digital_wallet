@@ -33,7 +33,7 @@ def obtener_saldo(session: Session = Depends(get_session), user: User = Depends(
     }
 
 @router.post("/", response_model=MovimientoResponse)
-def crear_movimiento(movimiento_data: MovimientoCreate, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
+def crear_movimiento(movimiento_data: MovimientoCreate, session: Session = Depends(get_session), user: User = Depends(get_current_user), saldo :float = Depends(obtener_saldo)):
     if movimiento_data.monto > settings.limite_transferencia:
         raise HTTPException(status_code=400, detail="Monto excede el límite de seguridad.")
     
@@ -41,6 +41,8 @@ def crear_movimiento(movimiento_data: MovimientoCreate, session: Session = Depen
     if not categoria:
         raise HTTPException(status_code=404, detail="Categoría no encontrada.")
     
+    if movimiento_data.tipo == "egreso" and movimiento_data.monto > saldo["saldo_actual"]:
+        raise HTTPException(status_code=400, detail="Fondos insuficientes para este egreso.")
     # Exclude None para que la fecha automática funcione
     movimiento_dict = movimiento_data.model_dump(exclude_none=True)
     nuevo_movimiento = Movimiento(**movimiento_dict)

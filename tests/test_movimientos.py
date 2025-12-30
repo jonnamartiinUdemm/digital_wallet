@@ -188,3 +188,16 @@ def test_traer_movimientos_un_tipo(client, categoria_test):
     movimientos = response.json()
     for mov in movimientos:
         assert mov["tipo"] == "egreso"
+
+#Crear movimiento con fondos insuficientes
+def test_crear_movimiento_fondos_insuficientes(client, categoria_test):
+    categoria_id = categoria_test.id
+    movimiento_data = {
+        "monto": 5000,  # Monto mayor al saldo disponible (0 al inicio)
+        "tipo": "egreso",
+        "concepto": "Prueba fondos insuficientes",
+        "categoria_id": categoria_id
+    }
+    response = client.post("/movimientos/", json=movimiento_data)
+    assert response.status_code == 400  # Esperamos un error 400
+    assert response.json() == {"detail": "Fondos insuficientes para este egreso."}
