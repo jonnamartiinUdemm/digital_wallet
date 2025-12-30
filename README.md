@@ -1,42 +1,61 @@
-# 💰 Billetera Virtual - Backend API
+# 💰 Billetera Virtual - Cloud Architecture
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green)
-![Docker](https://img.shields.io/badge/Docker-Enabled-blue)
-![Coverage](https://img.shields.io/badge/Tests-Passing-brightgreen)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791)
+![Azure](https://img.shields.io/badge/Azure-Cloud-0078D4)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
+![CI/CD](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF)
 
-API RESTful para la gestión de finanzas personales. Permite a los usuarios registrar ingresos y egresos, categorizarlos, consultar saldos y filtrar movimientos históricos. El sistema cuenta con autenticación segura y está desplegado en la nube.
+Backend robusto para gestión financiera personal, diseñado con una arquitectura moderna de microservicios y desplegado en la nube con integración continua.
 
 ## 🚀 Demo en Vivo
 
-Puedes probar la documentación interactiva (Swagger UI) aquí:
-👉 **[https://jnnmnn-billetera-api.onrender.com/docs](https://jnnmnn-billetera-api.onrender.com/docs)**
+* **API Documentation (Swagger):** [https://jnnmnn-billetera-api.onrender.com/docs](https://jnnmnn-billetera-api.onrender.com/docs)
+* **Estado del Deploy:** ![CI/CD Billetera](https://github.com/TU_USUARIO/billetera-backend/actions/workflows/ci.yml/badge.svg)
 
-*(Nota: Al estar en un plan gratuito de Render, el servidor puede tardar unos segundos en "despertar" si no se ha usado recientemente).*
+*(Nota: El servidor está alojado en Render (Free Tier) y la Base de Datos en Azure (Brasil). Puede tardar unos segundos en "despertar" la primera vez).*
 
-## ✨ Características Principales
+## 🏛️ Arquitectura del Sistema
 
-* **Autenticación Segura:** Registro y Login de usuarios mediante **JWT (JSON Web Tokens)** y hashing de contraseñas con **Bcrypt**.
-* **Gestión de Movimientos:** CRUD completo (Crear, Leer, Actualizar, Borrar).
-* **Filtros Avanzados:** Consultar movimientos por tipo (ingreso/egreso), categoría o rango de fechas.
-* **Categorías:** Gestión dinámica de categorías para organizar los gastos.
-* **Seguridad de Negocio:** Validaciones de límites de transferencia y saldos.
-* **Testing:** Suite de pruebas automatizadas con **Pytest** (cobertura de Auth, Movimientos y Categorías).
-* **Containerización:** Listo para desplegar con **Docker**.
+El proyecto sigue una arquitectura distribuida híbrida:
 
-## 🛠️ Tecnologías Utilizadas
+1.  **API (Compute):** Contenedor Docker alojado en **Render**.
+2.  **Base de Datos (Storage):** PostgreSQL gestionado en **Azure Database (Flexible Server)**.
+3.  **CI/CD Pipeline:** Automatización completa con **GitHub Actions**.
 
-* **Lenguaje:** Python 3.11
-* **Framework:** FastAPI
-* **ORM:** SQLModel (SQLAlchemy + Pydantic)
-* **Base de Datos:** SQLite (Desarrollo/Demo)
-* **Seguridad:** Passlib (Bcrypt), Python-Jose (JWT)
-* **Testing:** Pytest, TestClient
-* **Infraestructura:** Docker, Render
+```mermaid
+graph LR
+    User((👤 Usuario)) --> |HTTPS| Render[☁️ Render (FastAPI Container)]
+    Render --> |Secure Connection| Azure[🗄️ Azure PostgreSQL]
+    
+    subgraph GitHub_Actions [🤖 CI/CD Pipeline]
+        Code[📝 Push Code] --> Test[🧪 Pytest]
+        Test --> |Success| Deploy[🚀 Auto-Deploy to Render]
+    end
+```
 
-## ⚙️ Instalación Local
+## ✨ Características Técnicas
 
-Sigue estos pasos para correr el proyecto en tu máquina:
+* **Base de Datos Híbrida:** Soporte dinámico para **SQLite** (Testing/Dev) y **PostgreSQL** (Producción).
+* **Containerización:** Orquestación de servicios (API + DB) mediante **Docker Compose**.
+* **Resiliencia:** Lógica de "Retry Pattern" para conexiones a base de datos.
+* **Seguridad:** Autenticación JWT (HS256) y Hashing de contraseñas (Bcrypt).
+* **Automatización:**
+    * **CI:** Ejecución automática de tests en cada `git push`.
+    * **CD:** Despliegue automático a producción solo si los tests pasan.
+
+## 🛠️ Tecnologías
+
+* **Core:** Python 3.11, FastAPI, SQLModel.
+* **Infraestructura:** Docker, Docker Compose.
+* **Base de Datos:** PostgreSQL (Producción), SQLite (Tests).
+* **DevOps:** GitHub Actions, Render Deploy Hooks.
+* **Cloud:** Microsoft Azure for Students.
+
+## ⚙️ Instalación Local (Con Docker)
+
+La forma más profesional de correr el proyecto es usando Docker Compose, que levanta la API y una base de datos PostgreSQL local idéntica a la de producción.
 
 1.  **Clonar el repositorio:**
     ```bash
@@ -44,50 +63,51 @@ Sigue estos pasos para correr el proyecto en tu máquina:
     cd billetera-backend
     ```
 
-2.  **Crear entorno virtual:**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # En Windows: venv\Scripts\activate
-    ```
-
-3.  **Instalar dependencias:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-4.  **Configurar Variables de Entorno:**
-    Crea un archivo `.env` en la raíz y agrega:
+2.  **Configurar Variables:**
+    Crea un archivo `.env` en la raíz (Docker lo leerá automáticamente):
     ```env
-    SECRET_KEY="tu_clave_secreta_super_larga"
+    SECRET_KEY="clave_secreta_local"
     ALGORITHM="HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES=30
     LIMITE_TRANSFERENCIA=500000
-    NOMBRE_APP="Billetera Local"
+    NOMBRE_APP="Billetera Docker"
+    # No es necesario definir DATABASE_URL aquí, docker-compose la inyecta sola.
     ```
 
-5.  **Ejecutar el servidor:**
+3.  **Levantar el entorno:**
     ```bash
-    uvicorn main:app --reload
-    ```
-    La API estará disponible en `http://localhost:8000/docs`.
-
-## 🐳 Ejecución con Docker
-
-Si tienes Docker instalado, no necesitas configurar Python ni entornos virtuales:
-
-1.  **Construir la imagen:**
-    ```bash
-    docker build -t billetera-backend .
+    docker compose up --build
     ```
 
-2.  **Correr el contenedor:**
-    ```bash
-    docker run -d -p 8000:8000 --name mi-api billetera-backend
-    ```
+4.  **Acceder:**
+    * API Swagger: `http://localhost:8000/docs`
+    * La base de datos PostgreSQL estará corriendo en el puerto `5432`.
 
 ## 🧪 Testing
 
-El proyecto cuenta con pruebas modulares. Para ejecutarlas:
+El proyecto cuenta con una suite de pruebas automatizadas que se ejecutan tanto localmente como en GitHub Actions.
+
+Para correr los tests manualmente (usando una DB temporal en memoria):
 
 ```bash
-pytest
+# Si usas entorno virtual de Python
+pytest -v
+```
+
+## 📂 Estructura del Proyecto
+
+```text
+├── .github/workflows # Pipelines de CI/CD
+├── routers/          # Endpoints modulares
+├── tests/            # Tests unitarios y de integración
+├── database.py       # Conexión con lógica de reintentos
+├── docker-compose.yml# Orquestación de servicios
+├── Dockerfile        # Receta de la imagen
+├── main.py           # Entrypoint
+├── models.py         # Modelos SQLModel
+└── settings.py       # Gestión de configuración
+```
+
+## ✒️ Autor
+
+**Jonathan Martin** - *Software Engineer Student*
