@@ -45,7 +45,7 @@ jobs:
       run: |
         pytest -v
     #E. Desplegar a Render (solo si los tests pasaron)
-    deploy-render:
+  deploy-render:
     needs: test-app
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' # Solo desplegar si el push es a la rama principal
