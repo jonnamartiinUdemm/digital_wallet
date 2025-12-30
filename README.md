@@ -1,91 +1,93 @@
-# Personal Finance API 💰
+# 💰 Billetera Virtual - Backend API
 
-A RESTful API built with **Python** and **FastAPI** to manage personal finances. This project demonstrates backend engineering practices including **Data Validation**, **Relational Database Design**, **Dependency Injection**, and **Automated Integration Testing**.
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green)
+![Docker](https://img.shields.io/badge/Docker-Enabled-blue)
+![Coverage](https://img.shields.io/badge/Tests-Passing-brightgreen)
 
-![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![Pytest](https://img.shields.io/badge/Pytest-Passing-4b8bbe?style=for-the-badge&logo=pytest&logoColor=white)
-![SQLModel](https://img.shields.io/badge/ORM-SQLModel-black?style=for-the-badge)
+API RESTful para la gestión de finanzas personales. Permite a los usuarios registrar ingresos y egresos, categorizarlos, consultar saldos y filtrar movimientos históricos. El sistema cuenta con autenticación segura y está desplegado en la nube.
 
-## 📖 Project Overview
+## 🚀 Demo en Vivo
 
-This backend application solves the problem of tracking financial movements (incomes/expenses) with temporal context and categorization. It provides endpoints for creating, reading, updating, and deleting (CRUD) transactions, with capabilities for **filtering** and **sorting**.
+Puedes probar la documentación interactiva (Swagger UI) aquí:
+👉 **[https://jnnmnn-billetera-api.onrender.com/docs](https://jnnmnn-billetera-api.onrender.com/docs)**
 
-The core philosophy of this project is **Reliability** and **Maintainability**, achieved through strict type checking, separation of concerns, and a comprehensive test suite.
+*(Nota: Al estar en un plan gratuito de Render, el servidor puede tardar unos segundos en "despertar" si no se ha usado recientemente).*
 
-## 🏗️ Technical Architecture
+## ✨ Características Principales
 
-The project follows a **Layered Architecture** to ensure separation of concerns (SoC):
+* **Autenticación Segura:** Registro y Login de usuarios mediante **JWT (JSON Web Tokens)** y hashing de contraseñas con **Bcrypt**.
+* **Gestión de Movimientos:** CRUD completo (Crear, Leer, Actualizar, Borrar).
+* **Filtros Avanzados:** Consultar movimientos por tipo (ingreso/egreso), categoría o rango de fechas.
+* **Categorías:** Gestión dinámica de categorías para organizar los gastos.
+* **Seguridad de Negocio:** Validaciones de límites de transferencia y saldos.
+* **Testing:** Suite de pruebas automatizadas con **Pytest** (cobertura de Auth, Movimientos y Categorías).
+* **Containerización:** Listo para desplegar con **Docker**.
 
-* **Models Layer (`models.py`):** Defines the database schema using **SQLModel (SQLAlchemy)**. Handles persistence and table relationships.
-* **Schemas Layer (`schemas.py`):** Handles Data Transfer Objects (DTOs) using **Pydantic V2**. This layer acts as a validation step for input data and output serialization.
-* **Controller Layer (`main.py`):** Manages HTTP requests and business logic. It utilizes **Dependency Injection** to manage database sessions securely.
-* **Configuration (`settings.py`):** Decouples configuration from code using environment variables.
+## 🛠️ Tecnologías Utilizadas
 
-### Key Features
-* **✅ Full CRUD Operations:** Create, Read, Update, and Delete for Movements and Categories.
-* **🔌 Relational Integrity:** Enforces Foreign Keys to ensure data consistency between Transactions and Categories.
-* **🔍 Filtering & Sorting:**
-    * Dynamic query parameters to filter by date range (`fecha_desde`, `fecha_hasta`), category, or type.
-    * Safe dynamic sorting via `order_by` parameter.
-* **🛡️ Error Handling:** Custom HTTP exceptions for business rules (e.g., transaction limits).
-* **♻️ Data Seeding:** Automated script (`seed.py`) to populate the database with mock data for development.
-
-## 🛠️ Tech Stack
-
-* **Language:** Python 3.11+
+* **Lenguaje:** Python 3.11
 * **Framework:** FastAPI
-* **ORM:** SQLModel (Combines SQLAlchemy and Pydantic)
-* **Validation:** Pydantic V2
-* **Database:** SQLite (Can be converted to other SQL databases like PostgreSQL)
-* **Testing:** Pytest & HTTPX
+* **ORM:** SQLModel (SQLAlchemy + Pydantic)
+* **Base de Datos:** SQLite (Desarrollo/Demo)
+* **Seguridad:** Passlib (Bcrypt), Python-Jose (JWT)
+* **Testing:** Pytest, TestClient
+* **Infraestructura:** Docker, Render
 
-## 🧪 Testing Strategy
+## ⚙️ Instalación Local
 
-The project includes a suite of **Integration Tests** that cover happy paths and edge cases.
+Sigue estos pasos para correr el proyecto en tu máquina:
 
-* **Isolation:** Tests run on an **in-memory SQLite database** using `StaticPool`. This ensures that tests never corrupt the development database.
-* **Fixtures:** Utilizes `pytest` fixtures in `conftest.py` for setup/teardown automation.
-* **Coverage:** Validates HTTP status codes, JSON response structures, database integrity, and scenarios like partial updates.
-
-## 🚀 Getting Started
-
-### Prerequisites
-* Python 3.10 or higher
-* Git
-
-### Installation
-
-1.  **Clone the repository:**
+1.  **Clonar el repositorio:**
     ```bash
-    git clone [https://github.com/YOUR_USERNAME/PROJECT_NAME.git](https://github.com/YOUR_USERNAME/PROJECT_NAME.git)
-    cd PROJECT_NAME
+    git clone [https://github.com/TU_USUARIO/billetera-backend.git](https://github.com/TU_USUARIO/billetera-backend.git)
+    cd billetera-backend
     ```
 
-2.  **Create and activate a virtual environment:**
+2.  **Crear entorno virtual:**
     ```bash
     python -m venv venv
-    # Windows
-    venv\Scripts\activate
-    # Mac/Linux
-    source venv/bin/activate
+    source venv/bin/activate  # En Windows: venv\Scripts\activate
     ```
 
-3.  **Install dependencies:**
+3.  **Instalar dependencias:**
     ```bash
     pip install -r requirements.txt
     ```
 
-4.  **Run the application:**
+4.  **Configurar Variables de Entorno:**
+    Crea un archivo `.env` en la raíz y agrega:
+    ```env
+    SECRET_KEY="tu_clave_secreta_super_larga"
+    ALGORITHM="HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES=30
+    LIMITE_TRANSFERENCIA=500000
+    NOMBRE_APP="Billetera Local"
+    ```
+
+5.  **Ejecutar el servidor:**
     ```bash
     uvicorn main:app --reload
     ```
+    La API estará disponible en `http://localhost:8000/docs`.
 
-5.  **Access Documentation:**
-    * Swagger UI: `http://127.0.0.1:8000/docs`
-    * ReDoc: `http://127.0.0.1:8000/redoc`
+## 🐳 Ejecución con Docker
 
-### Data Seeding (Optional)
-Populate the database with dummy data for testing purposes:
+Si tienes Docker instalado, no necesitas configurar Python ni entornos virtuales:
+
+1.  **Construir la imagen:**
+    ```bash
+    docker build -t billetera-backend .
+    ```
+
+2.  **Correr el contenedor:**
+    ```bash
+    docker run -d -p 8000:8000 --name mi-api billetera-backend
+    ```
+
+## 🧪 Testing
+
+El proyecto cuenta con pruebas modulares. Para ejecutarlas:
+
 ```bash
-python seed.py
+pytest
