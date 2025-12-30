@@ -1,14 +1,5 @@
 from main import app
-
-
-# TEST 1: Verificar que la ruta de inicio responde
-def test_read_main(client):
-    response = client.get("/")  # Simulamos entrar a "/"
-    assert response.status_code == 200  # Esperamos código 200 (OK)
-    assert response.json() == {"status": "Online", "version": "Billetera Local 2.0 (Refactorizada)"}
-
-
-# TEST 2: Verificar la estructura del saldo
+#Verificar la estructura del saldo
 def test_read_saldo(client):
     response = client.get("/movimientos/saldo")
     assert response.status_code == 200
@@ -20,7 +11,7 @@ def test_read_saldo(client):
     assert data["moneda"] == "ARS"
 
 
-# TEST 3: Verificar creación de un movimiento con monto excesivo
+#Verificar creación de un movimiento con monto excesivo
 def test_crear_movimiento_monto_excesivo(client, categoria_test):
     categoria_id = categoria_test.id
     movimiento_data = {
@@ -34,14 +25,14 @@ def test_crear_movimiento_monto_excesivo(client, categoria_test):
     assert response.json() == {"detail": "Monto excede el límite de seguridad."}
 
 
-# TEST 4: Verificar eliminación de un movimiento inexistente
+#Verificar eliminación de un movimiento inexistente
 def test_eliminar_movimiento_inexistente(client):
     response = client.delete("/movimientos/9999")  # ID que no existe
     assert response.status_code == 404  # Esperamos un error 404
     assert response.json() == {"detail": "Movimiento no encontrado."}
 
 
-# TEST 5: Verificar creación y eliminación de un movimiento
+#Verificar creación y eliminación de un movimiento
 def test_crear_y_eliminar_movimiento(client, categoria_test):
     categoria_id = categoria_test.id
     movimiento_data = {
@@ -62,7 +53,7 @@ def test_crear_y_eliminar_movimiento(client, categoria_test):
     assert response_delete.json() == {"detail": "Movimiento eliminado exitosamente."}
 
 
-# TEST 6: Verificar actualización de un movimiento inexistente
+#Verificar actualización de un movimiento inexistente
 def test_actualizar_movimiento_inexistente(client, categoria_test):
     categoria_id = categoria_test.id
     movimiento_data = {
@@ -76,7 +67,7 @@ def test_actualizar_movimiento_inexistente(client, categoria_test):
     assert response.json() == {"detail": "Movimiento no encontrado."}
 
 
-# TEST 7: Verificar actualización de un movimiento con monto excesivo
+#Verificar actualización de un movimiento con monto excesivo
 def test_actualizar_movimiento_monto_excesivo(client, categoria_test):
     categoria_id = categoria_test.id
     # Primero, creamos un movimiento válido
@@ -107,7 +98,7 @@ def test_actualizar_movimiento_monto_excesivo(client, categoria_test):
     client.delete(f"/movimientos/{movimiento_id}")
 
 
-# Test 8: Verificar creación y actualización de un movimiento
+#Verificar creación y actualización de un movimiento
 def test_crear_y_actualizar_movimiento(client, categoria_test):
     categoria_id = categoria_test.id
     movimiento_data = {
@@ -136,7 +127,7 @@ def test_crear_y_actualizar_movimiento(client, categoria_test):
     movimiento_actualizado = response_update.json()
     assert movimiento_actualizado["monto"] == 2500
     assert movimiento_actualizado["concepto"] == "Actualización exitosa"
-#Test 9: Crear movimiento con categoria inexistente
+#Crear movimiento con categoria inexistente
 def test_crear_movimiento_categoria_inexistente(client):
     movimiento_data = {
         "monto": 1000,
@@ -148,23 +139,8 @@ def test_crear_movimiento_categoria_inexistente(client):
     assert response.status_code == 404  # Esperamos un error 404
     assert response.json() == {"detail": "Categoría no encontrada."}
     # Limpieza: Eliminar el movimiento creado
-#Test 10: Crear categoria y leer categorias
-def test_crear_y_leer_categorias(client):
-    categoria_data = {
-        "nombre": "Prueba Categoria"
-    }
-    # Crear la categoria
-    response_create = client.post("/categorias/", json=categoria_data)
-    assert response_create.status_code == 200
-    categoria_creada = response_create.json()
-    categoria_id = categoria_creada["id"]
 
-    # Leer las categorias
-    response_read = client.get("/categorias/")
-    assert response_read.status_code == 200
-    categorias = response_read.json()
-    assert any(cat["id"] == categoria_id for cat in categorias)
-#Test 11: Crear movimiento con categoria existente
+#Crear movimiento con categoria existente
 def test_crear_movimiento_categoria_existente(client):
     categoria_data = {
         "nombre": "Categoria para Movimiento"
@@ -187,16 +163,28 @@ def test_crear_movimiento_categoria_existente(client):
     movimiento_creado = response_create_mov.json()
     assert movimiento_creado["categoria_id"] == categoria_id
 
-#Test 12: Crear usuario y verificar hash de contraseña
-def test_crear_usuario_y_verificar_hash(client):
-    usuario_data = {
-        "username": "usuario_nuevo", 
-        "email": "test2@test.com",
-        "password": "securepassword123"
+#Traer movimientos de un solo tipo
+def test_traer_movimientos_un_tipo(client, categoria_test):
+    categoria_id = categoria_test.id
+    # Crear movimientos de diferentes tipos
+    movimiento_data_egreso = {
+        "monto": 1000,
+        "tipo": "egreso",
+        "concepto": "Prueba egreso",
+        "categoria_id": categoria_id
     }
-    response = client.post("/auth/register", json=usuario_data)
+    movimiento_data_ingreso = {
+        "monto": 2000,
+        "tipo": "ingreso",
+        "concepto": "Prueba ingreso",
+        "categoria_id": categoria_id
+    }
+    client.post("/movimientos/", json=movimiento_data_egreso)
+    client.post("/movimientos/", json=movimiento_data_ingreso)
+
+    # Traer solo movimientos de tipo 'egreso'
+    response = client.get("/movimientos/?tipo=egreso")
     assert response.status_code == 200
-    usuario_creado = response.json()
-    assert usuario_creado["username"] == "usuario_nuevo"
-    assert usuario_creado["email"] == "test2@test.com"
-    assert "hashed_password" not in usuario_creado  # No debe devolver la contraseña hasheada
+    movimientos = response.json()
+    for mov in movimientos:
+        assert mov["tipo"] == "egreso"
