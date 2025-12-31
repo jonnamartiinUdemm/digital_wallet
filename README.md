@@ -12,7 +12,7 @@ Backend robusto para gestión financiera personal, diseñado con una arquitectur
 ## 🚀 Demo en Vivo
 
 * **API Documentation (Swagger):** [https://jnnmnn-billetera-api.onrender.com/docs](https://jnnmnn-billetera-api.onrender.com/docs)
-* **Estado del Deploy:** ![CI/CD Billetera](https://github.com/jonnamartiinUdemm/billetera-backend/actions/workflows/ci.yml/badge.svg)
+* **Estado del Deploy:** [![CI Billetera](https://github.com/jonnamartiinUdemm/digital_wallet/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jonnamartiinUdemm/digital_wallet/actions/workflows/ci.yml)
 
 *(Nota: El servidor está alojado en Render (Free Tier) y la Base de Datos en Azure (Brasil). Puede tardar unos segundos en "despertar" la primera vez).*
 
