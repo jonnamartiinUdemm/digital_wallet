@@ -18,6 +18,34 @@ Backend robusto para gestión financiera personal, diseñado con una arquitectur
 
 ## 🏛️ Arquitectura del Sistema
 
+```mermaid
+%%{init: {'theme': 'base'}}%%
+graph LR
+    %% --- Estilos ---
+    classDef userNode fill:#f1c40f,stroke:#f39c12,stroke-width:2px,color:#2c3e50,font-weight:bold;
+    classDef computeNode fill:#3498db,stroke:#2980b9,stroke-width:2px,color:#fff,rx:5,ry:5,font-weight:bold;
+    classDef storageNode fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff,rx:5,ry:5,font-weight:bold;
+    classDef ciStep fill:#9b59b6,stroke:#8e44ad,stroke-width:1px,color:#fff,rx:5,ry:5;
+
+    %% --- Flujo Principal ---
+    User(("👤 Usuario")):::userNode --> |"📱 HTTPS Request"| Render["☁️ Render (FastAPI Container)"]:::computeNode
+    Render --> |"🔒 Secure Connection (SSL)"| Azure["🗄️ Azure PostgreSQL (Brasil)"]:::storageNode
+
+    %% --- CI/CD Pipeline (Vertical) ---
+    subgraph GitHub_Actions ["⚙️ CI/CD Automation Pipeline"]
+        direction TB
+        Code["📝 git push"]:::ciStep --> Test["🧪 Run Pytest"]:::ciStep
+        Test --> |"✅ Checks Pass"| Deploy["🚀 Auto-Deploy to Render"]:::ciStep
+    end
+
+    %% --- Conexión Pipeline -> Render ---
+    Deploy -.-> |"🚀 Actualiza"| Render
+
+    %% Estilo del recuadro del subgraph
+    style GitHub_Actions fill:#f8f9fa,stroke:#bdc3c7,stroke-width:2px,stroke-dasharray: 5 5,color:#7f8c8d
+```
+
+
 El proyecto sigue una arquitectura distribuida híbrida:
 
 1.  **API (Compute):** Contenedor Docker alojado en **Render**.
